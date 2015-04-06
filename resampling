@@ -1,0 +1,53 @@
+################################# Resampling #############################################
+resampling <- function(n){
+  
+  ###Extract the list of selected predictors from Lasso's output
+  selct=unlist(strsplit(capture.output(cat(drug,predtr)), " "))
+  selct_set=data[selct]
+  
+  ###Make a GP data set without the predictors selected by Lasso
+  rest_set=data[,!(names(data) %in% selct)]
+  
+  if(dim(selct_set)[2]<10){rsp=45}
+  else{if(dim(selct_set)[2]<20){rsp=35}
+       else{if(dim(selct_set)[2]<30){rsp=25}
+            else{if(dim(selct_set[2])<40){rsp=15}
+                else{rsp=5}}}}
+  
+  dimx=dim(selct_set)[2]+rsp-1
+  ###Create a table of approperiate size to store results
+  coef=matrix(0,(dimx+1),(nrep+1),dimnames=list(c(0:dimx),c(0:nrep)))
+  
+  for(i in 1:nrep){
+    
+    ###Randomly select "rsp" predictors from the "rest_set" dataset 
+    
+    random=sample(rest_set,rsp,replace=FALSE)
+    colnames(random)=c(1:rsp)
+    
+    ###Generate a working dataset with Lasso selected and randomly picked predictors
+    set=cbind(selct_set,random)
+    
+    ###The explanatory and response variables
+    y=as.matrix(set[,1])
+    x=as.matrix(set[,2:dim(set)[2]])
+    
+    ###Run a cross validation of Lasso to obtain a lambda of best fit
+    cv.fit=cv.glmnet(x,y,alpha=1,grouped=FALSE)
+    
+    ###Run Lasso with the best lambda to fit the model 
+    fit=glmnet(x,y,lambda=cv.fit$lambda.min)
+    
+    ###Record coeffitients of predictors
+    coef[1:(dimx+1),1]=row.names(coef(fit))
+    coef[1:(dimx+1),i+1]=as.matrix(coef(fit))
+  }  
+  
+  ###Write a CSV file for results
+  coef_file=paste("resample_",drug,".csv",sep="")
+  write.csv(coef, file=coef_file)
+  
+  ###Return the selected predictors
+  return(coef)
+}
+
