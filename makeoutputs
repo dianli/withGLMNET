@@ -1,0 +1,87 @@
+######### Export results of GLMNET, then repair input for Leaps&Bound and resampling #####  
+out4resample <- function(n){
+  
+  ###Set the data set as matrix
+  data2=coef0[2:(dim(coef0)[1]),2:dim(coef0)[2]]
+  coef=matrix(as.numeric(data2),nrow=(dim(coef0)[1]-1),ncol=(dim(coef0)[2]-1))
+  row.names(coef)=coef0[2:dim(coef0)[1],1]
+  
+  ###Count the number of selections with no predictor selected
+  count_zero=data.matrix(apply(coef,2,sum))
+  vr_zero=sum(count_zero==0)
+  
+  ###Extract the selected predictors and total numbers of being selected in a thousand of repeats
+  coef[coef!=0]=1
+  counts=as.matrix(sort(apply(coef,1,sum)))
+  vr_fun=function(z) z[z >0]
+  vr=counts[(counts %in% apply(counts,2,vr_fun)),]
+  vr=as.matrix(vr)
+  
+  ###Print the results
+  print(drug)
+  print(paste("vr_zero=", vr_zero))
+  print(paste("predictors=", dim(vr)[1]))
+  print(vr)
+  cat("\n")
+  
+  ###Return the selected predictors
+  predtr=row.names(vr)
+  return(predtr)
+}
+
+##########################################################################################  
+######### Export results of GLMNET, then repair input for Leaps&Bound and resampling #####
+####cutoff exist ###
+out4resample2 <- function(n){
+  
+  ###Set the data set as matrix
+  data2=coef0[2:(dim(coef0)[1]),2:dim(coef0)[2]]
+  coef=matrix(as.numeric(data2),nrow=(dim(coef0)[1]-1),ncol=(dim(coef0)[2]-1))
+  row.names(coef)=coef0[2:dim(coef0)[1],1]
+  
+  ###Count the number of selections with no predictor selected
+  count_zero=data.matrix(apply(coef,2,sum))
+  vr_zero=sum(count_zero==0)
+  
+  ###Extract the selected predictors and total numbers of being selected in a thousand of repeats
+  coef[coef!=0]=1
+  counts=as.matrix(sort(apply(coef,1,sum)))
+  vr_fun=function(z) z[z >0]
+  vr=counts[(counts %in% apply(counts,2,vr_fun)),]
+  vr=as.matrix(vr)
+  
+  ###Print the results
+  print(drug)
+  print(paste("vr_zero=", vr_zero))
+  print(paste("predictors=", dim(vr)[1]))
+  print(vr)
+  cat("\n")
+  
+  ###Return the selected predictors
+  vr_leaps_fun=function(z) z[z >=100]
+  vr_leaps=as.matrix(counts[(counts %in% apply(counts,2,vr_leaps_fun)),])
+  predtr=row.names(vr_leaps)
+  return(predtr)
+}
+
+########################################################################################
+#################### Export Lasso/resampling output ######################################
+readLout <- function(n){
+	data2=coef0[2:(dim(coef0)[1]),2:dim(coef0)[2]]
+    coef=matrix(as.numeric(data2),nrow=(dim(coef0)[1]-1),ncol=(dim(coef0)[2]-1))
+    row.names(coef)=coef0[2:dim(coef0)[1],1]
+    count_zero=data.matrix(apply(coef,2,sum))
+    vr_zero=sum(count_zero==0)
+    coef[coef!=0]=1
+    counts=as.matrix(sort(apply(coef,1,sum)))
+    vr_file=paste("vr_",drug,".csv",sep="")
+    write.csv(counts, file=vr_file)
+    vr_fun=function(z) z[z >0]
+    vr=counts[(counts %in% apply(counts,2,vr_fun)),]
+    vr=as.matrix(vr)
+    print(drug)
+    print(paste("vr_zero=", vr_zero))
+    print(paste("predictors=", dim(vr)[1]))
+    print(vr)
+    cat("\n")
+}
