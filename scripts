@@ -1,0 +1,19 @@
+source(".../functions.R") 
+setwd("...")
+data.o=read.csv(file="data.csv",header=TRUE)       
+row.names(data.o)=data.o$Cellline
+no=
+cutoff=
+nrep=
+rsp=
+sink("filename.txt",type="output")
+for (n in 2:(no+1)){
+  nam=names(data.o)[n]	
+  data=mkdata(n)	
+  elasticnet(n)
+  coef0=lasso(n)	
+  predtr=out4resample(n)
+  leapsbd(n)  
+  coef0=resampling(n)
+  readLout(n)
+}
